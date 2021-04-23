@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+      integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ=="
+      crossorigin="anonymous"
+    />
+    <title>Teste - Live University</title>
+  </head>
+  <body>
+    <div class="ui container vh-100">
+      <div class="card-container vh-100">
+        <div class="ui card form-card" id="form-card">
+          <%if (!result) {%>
+          <form method="POST" action="/" id="home-form" class="ui form">
+            <h2 class="ui center aligned purple header">
+              Live University
+              <div class="sub header">Preencha o formulário</div>
+            </h2>
+            <div class="mt-1">
+              <label for="name"> Nome </label>
+              <input
+                id="name"
+                name="nome"
+                class="mt-1"
+                placeholder="Nome"
+                maxlength="100"
+                required
+              />
+            </div>
+            <div class="mt-1">
+              <label for="lastname"> Sobrenome </label>
+              <input
+                id="lastname"
+                name="sobrenome"
+                class="mt-1"
+                maxlength="100"
+                placeholder="Sobrenome"
+                required
+              />
+            </div>
+            <div class="mt-1">
+              <label for="email"> Email </label>
+              <input
+                type="email"
+                name="email"
+                maxlength="100"
+                class="mt-1"
+                placeholder="Email"
+                required
+              />
+            </div>
+            <div class="button-container">
+                <button class="ui animated button primary mr-0 mt-3">
+                  <div class="visible content">Enviar</div>
+                  <div class="hidden content">
+                    <i class="right arrow icon"></i>
+                  </div>
+                </button>
+            </div>
+          </form>
+          <%} else {%>
+          <h3 class="ui center aligned purple header"><%=result.animal%></h3>
+          <h3 class="ui center aligned purple header"><%=result.pais%></h3>
+          <h3 class="ui center aligned purple header"><%=result.cor%></h3>
+          <div class="button-container">
+            <a class="ui animated button primary mr-0 mt-3" href="/">
+              <div class="visible content">Voltar</div>
+              <div class="hidden content">
+                <i class="left arrow icon"></i>
+              </div>
+            </a>
+          </div>
+          <%}%>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"
+    integrity="sha512-dqw6X88iGgZlTsONxZK9ePmJEFrmHwpuMrsUChjAw1mRUhUITE5QU9pkcSox+ynfLhL15Sv2al5A0LVyDCmtUw=="
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"
+  ></script>
+</html>

@@ -1,0 +1,47 @@
+body {
+  background: #cc2b5e !important;
+  background: -webkit-linear-gradient(to right, #753a88, #cc2b5e) !important;
+  background: linear-gradient(to right, #753a88, #cc2b5e) !important;
+}
+
+.vh-100 {
+  height: 100vh !important;
+}
+
+.form-card {
+  padding: 1.5rem !important;
+  box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, .3) !important;
+  -webkit-box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, .3) !important;
+  animation-name: appearing;
+  animation-duration: 3s;
+  animation-timing-function: ease;
+}
+
+@keyframes appearing {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+.card-container {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mr-0 {
+  margin-right: 0 !important;
+}
+
+.mt-1 {
+  margin-top: .5rem !important;
+}
+
+.mt-3 {
+  margin-top: 1.5rem !important;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+}
