@@ -1,0 +1,14 @@
+{
+  "name": "dev-test",
+  "version": "1.0.0",
+  "description": "Teste técnico para a vaga de desenvolvedor por Lucas Yoshida",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Lucas Yoshida",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1"
+  }
+}
