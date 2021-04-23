@@ -1,109 +1,79 @@
-const Connection = require('tedious').Connection;
-const Request = require('tedious').Request;
-const TYPES = require('tedious').TYPES;
-const config = require('../config');
+const tp = require('tedious-promises');
+const dbConfig = require('../config');
+tp.setConnectionConfig(dbConfig);
 
-const connection = new Connection(config);
+const alreadyExists = async (email) => await tp
+    .sql(
+      `SELECT * FROM tbs_email WHERE tbs_email.email = '${email.email}' AND tbs_email.cod = '${email.cod}';`,
+    )
+    .returnRowCount()
+    .execute()
+    .then((data) => data)
+    .fail((err) => {
+      throw new Error(err);
+    });
 
-connection.on('connect', (err) => {
-  if (err) {
-    return console.log("Couldn't connect to SQL Server", err);
+const insertData = async ({ nome, sobrenome, email }) => {
+  const userData = await alreadyExists(email)
+  if (userData) {
+    return { nome, sobrenome, email };
   }
-  console.log('Connected to SQL Server');
-});
-  
-connection.connect();
 
-const dbInsert = ({ nome, sobrenome, email }) => {
-  request = new Request(
-    `INSERT tbs_nome (nome, cod) values('${nome.nome}', '${nome.cod}');
+  const insertedData = await tp
+    .sql(
+      `INSERT tbs_nome (nome, cod) values('${nome.nome}', '${nome.cod}');
     INSERT tbs_sobrenome (sobrenome, cod) values('${sobrenome.sobrenome}', '${sobrenome.cod}');
     INSERT tbs_email (email, cod) values('${email.email}', '${email.cod}');`,
-    (err, _rowCount, _row) => {
-      if (err) {
-        console.log('nope', err);
-        return false;
+    )
+    .returnRowCount()
+    .execute()
+    .then((data) => {
+      if (data) {
+        return data;
       }
-    },
-  );
+    })
+    .fail((err) => {
+      throw new Error(err);
+    });
 
-  request.addParameter('nome', TYPES.VarChar, 100);
-  request.addParameter('sobrenome', TYPES.VarChar, 100);
-  request.addParameter('email', TYPES.VarChar, 100);
-  request.addParameter('cod', TYPES.BigInt);
-
-  request.on('requestCompleted', () => {
-    getSoma(nome, sobrenome, email);
-  });
-
-  connection.execSql(request);
-}
-
-const getSoma = (nome, sobrenome, email) => {
-  const somas = [];
-  request = new Request(
-    `SELECT soma FROM tbs_cod_nome WHERE tbs_cod_nome.cod = '${nome.cod}'
-    UNION
-    SELECT soma FROM tbs_cod_sobrenome WHERE tbs_cod_sobrenome.cod = '${sobrenome.cod}'
-    UNION
-    SELECT soma FROM tbs_cod_email WHERE tbs_cod_email.cod = '${email.cod}';`,
-    (err, _rowCount, row) => {
-      if (err) {
-        console.log(err);
-        return false;
-      }
-      row.forEach((columns) => {
-        columns.forEach((column) => {
-          if (column.value !== null) {
-            somas.push(column.value);
-          }
-        });
-      });
-    },
-  );
-
-  request.on('requestCompleted', () => {
-    const cods = [nome.cod, sobrenome.cod, email.cod];
-    const total =
-      somas.reduce((a, b) => parseInt(a) + parseInt(b), 0) +
-      cods.reduce((a, b) => parseInt(a) + parseInt(b), 0);
-    getThings(total);
-  });
-
-  connection.execSql(request);
+  return insertedData;
 };
 
-const getThings = (total) => {
-  const things = [];
-  request = new Request(
-    `SELECT a.animal AS animal, p.pais AS pais, c.cor
-    FROM tbs_animais AS a
-      JOIN
-    tbs_paises AS p ON p.total = a.total
-      JOIN
-    tbs_cores AS c ON c.total = p.total
-      LEFT JOIN
-    tbs_cores_excluidas AS ec ON c.cor <> ec.cor
-    WHERE a.total = ${total};`,
-    (err, _rowCount, row) => {
-      if (err) {
-        console.log(err);
-        return false;
-      }
-      row.forEach((columns) => {
-        columns.forEach((column) => {
-          if (column.value !== null && things.length < 3) {
-            things.push(column.value);
-          }
-        });
-      });
-    },
-    );
-    request.on('requestCompleted', () => {
-      connection.emit('result', things);
-  });
-
-  connection.execSql(request);
+const getTotal = async ({ nome, sobrenome, email }) => {
+  const total = await tp
+    .sql(
+      `SELECT soma FROM tbs_cod_nome WHERE tbs_cod_nome.cod = ${nome.cod}
+       UNION
+       SELECT soma FROM tbs_cod_sobrenome WHERE tbs_cod_sobrenome.cod = ${sobrenome.cod}
+       UNION
+       SELECT soma FROM tbs_cod_email WHERE tbs_cod_email.cod = ${email.cod};`,
+    )
+    .execute()
+    .then((somasArr) => somasArr.map((el) => Number(el.soma)).reduce((a, b) => a + b, 0))
+    .then((somas) => somas + parseInt(nome.cod) + parseInt(sobrenome.cod) + parseInt(email.cod))
+    .fail((err) => {
+      throw new Error(err);
+    });
+  return total;
 };
 
-module.exports = { connection, dbInsert };
+const getThings = async (total) => {
+  const things = await tp
+    .sql(
+      `SELECT DISTINCT a.animal AS animal, p.pais AS pais, c.cor
+        FROM tbs_animais AS a
+          JOIN
+        tbs_paises AS p ON p.total = a.total
+          JOIN
+        tbs_cores AS c ON c.total = p.total AND c.cor not in (select cor from tbs_cores_excluidas)
+        WHERE a.total = ${total}`,
+    )
+    .execute()
+    .then((result) => result[0])
+    .fail((err) => {
+      throw new Error(err);
+    });
+  return things;
+};
+
+module.exports = { insertData, getTotal, getThings };

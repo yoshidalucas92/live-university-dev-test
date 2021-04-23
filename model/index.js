@@ -1,3 +1,2 @@
-const { connection, dbInsert } = require('./connection');
-
-module.exports = { connection, dbInsert };
+const { insertData, getTotal, getThings } = require('./connection');
+module.exports = { insertData, getTotal, getThings };
