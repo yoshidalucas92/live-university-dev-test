@@ -24,7 +24,7 @@ app.post('/', async (req, res) => {
       await model.insertData(resp);
       return await model.insertData(resp);
     })
-    .then(async (resp) => await model.getTotal(resp))
+    .then(async (somas) => await model.getTotal(somas))
     .then(async (total) => await model.getThings(total))
     .catch((err) => err);
 
